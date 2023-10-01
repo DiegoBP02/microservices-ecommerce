@@ -1,0 +1,16 @@
+version: '3'
+services:
+  postgres-product:
+    image: postgres:latest
+    container_name: postgres-product
+    environment:
+      POSTGRES_DB: product-service
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres-product:/data/postgres
+    ports:
+      - "54320:5432"
+
+volumes:
+  postgres-product:
