@@ -1,16 +1,43 @@
-version: '3'
+version: '3.7'
 services:
   postgres-product:
-    image: postgres:latest
     container_name: postgres-product
+    image: postgres:latest
     environment:
       POSTGRES_DB: product-service
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: password
     volumes:
       - postgres-product:/data/postgres
+    expose:
+      - "5430"
     ports:
-      - "54320:5432"
+      - "5430:5430"
+    command: -p 5430
+    restart: always
+
+  postgres-inventory:
+    image: postgres:latest
+    container_name: postgres-inventory
+    environment:
+      POSTGRES_DB: inventory-service
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres-inventory:/data/postgres
+    expose:
+      - "5431"
+    ports:
+      - "5431:5431"
+    command: -p 5431
+    restart: always
+  rabbitmq:
+    image: rabbitmq:3.9.11-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
 
 volumes:
   postgres-product:
+  postgres-inventory:

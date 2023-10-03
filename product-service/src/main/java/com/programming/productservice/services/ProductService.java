@@ -5,6 +5,7 @@ import com.programming.productservice.dtos.ProductUpdateRequest;
 import com.programming.productservice.exceptions.ResourceNotFoundException;
 import com.programming.productservice.models.Product;
 import com.programming.productservice.repository.ProductRepository;
+import com.programming.rabbitmqservice.RabbitMQMessageProducer;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,9 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private RabbitMQMessageProducer rabbitMQMessageProducer;
+
     public void create(ProductRequest productRequest) {
         Product product = Product.builder()
                 .name(productRequest.getName())
@@ -25,7 +29,13 @@ public class ProductService {
                 .price(productRequest.getPrice())
                 .category(productRequest.getProductCategory())
                 .build();
-        productRepository.save(product);
+        productRepository.saveAndFlush(product);
+
+        rabbitMQMessageProducer.publish(
+                product.getId(),
+                "internal.exchange",
+                "internal.notification.routing-key"
+        );
     }
 
     public List<Product> findAll() {

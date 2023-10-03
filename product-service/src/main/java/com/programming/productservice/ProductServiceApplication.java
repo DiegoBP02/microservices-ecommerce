@@ -11,7 +11,12 @@ import org.springframework.context.annotation.Bean;
 
 import java.math.BigDecimal;
 
-@SpringBootApplication
+@SpringBootApplication(
+		scanBasePackages = {
+				"com.programming.productservice",
+				"com.programming.rabbitmqservice",
+		}
+)
 public class ProductServiceApplication {
 
 	@Autowired

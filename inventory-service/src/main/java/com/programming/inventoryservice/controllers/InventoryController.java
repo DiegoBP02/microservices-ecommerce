@@ -1,6 +1,8 @@
 package com.programming.inventoryservice.controllers;
 
 import com.programming.inventoryservice.dtos.InventoryRequest;
+import com.programming.inventoryservice.dtos.InventoryUpdateRequest;
+import com.programming.inventoryservice.models.Inventory;
 import com.programming.inventoryservice.services.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@RequestMapping("/api/v1/inventory")
 public class InventoryController {
     @Autowired
     private InventoryService inventoryService;
