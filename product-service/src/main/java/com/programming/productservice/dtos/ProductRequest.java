@@ -1,10 +1,7 @@
 package com.programming.productservice.dtos;
 
 import com.programming.productservice.enums.ProductCategory;
-import jakarta.validation.constraints.DecimalMax;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -25,4 +22,7 @@ public class ProductRequest {
 
     @NotNull(message = "Product category is required")
     private ProductCategory productCategory;
+
+    @Max(value = 10000, message = "Quantity must not exceed 10.000")
+    private Integer quantity;
 }

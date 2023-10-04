@@ -1,5 +1,6 @@
 package com.programming.productservice.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.programming.productservice.dtos.ProductRequest;
 import com.programming.productservice.dtos.ProductUpdateRequest;
 import com.programming.productservice.models.Product;
@@ -19,7 +20,7 @@ public class ProductController {
     private ProductService productService;
 
     @PostMapping
-    public ResponseEntity<Void> create(@RequestBody ProductRequest productRequest) {
+    public ResponseEntity<Void> create(@RequestBody ProductRequest productRequest) throws JsonProcessingException {
         productService.create(productRequest);
         return ResponseEntity.noContent().build();
     }

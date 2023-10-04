@@ -6,6 +6,7 @@ import com.programming.inventoryservice.exceptions.ResourceNotFoundException;
 import com.programming.inventoryservice.models.Inventory;
 import com.programming.inventoryservice.repositories.InventoryRepository;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class InventoryService {
 
     @Autowired
@@ -21,8 +23,11 @@ public class InventoryService {
     public void create(InventoryRequest inventoryRequest) {
         Inventory product = Inventory.builder()
                 .quantity(inventoryRequest.getQuantity())
+                .productId(inventoryRequest.getProductId())
                 .build();
         inventoryRepository.save(product);
+        log.info("A inventory with productId {} and quantity {} was created.",
+                inventoryRequest.getProductId(), inventoryRequest.getQuantity());
     }
 
     public List<Inventory> findAll() {

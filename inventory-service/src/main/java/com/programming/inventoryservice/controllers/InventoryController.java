@@ -17,12 +17,6 @@ public class InventoryController {
     @Autowired
     private InventoryService inventoryService;
 
-    @PostMapping
-    public ResponseEntity<Void> create(@RequestBody InventoryRequest productRequest) {
-        inventoryService.create(productRequest);
-        return ResponseEntity.noContent().build();
-    }
-
     @GetMapping
     public ResponseEntity<List<Inventory>> findAll() {
         return ResponseEntity.ok(inventoryService.findAll());

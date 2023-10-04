@@ -19,6 +19,5 @@ public class Inventory {
     private UUID id;
     @Column(nullable = false)
     private UUID productId;
-    @Column(nullable = false)
-    private int quantity;
+    private Integer quantity;
 }

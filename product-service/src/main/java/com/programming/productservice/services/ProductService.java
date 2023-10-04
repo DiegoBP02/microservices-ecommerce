@@ -1,5 +1,8 @@
 package com.programming.productservice.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.programming.productservice.dtos.InventoryRequest;
 import com.programming.productservice.dtos.ProductRequest;
 import com.programming.productservice.dtos.ProductUpdateRequest;
 import com.programming.productservice.exceptions.ResourceNotFoundException;
@@ -22,7 +25,10 @@ public class ProductService {
     @Autowired
     private RabbitMQMessageProducer rabbitMQMessageProducer;
 
-    public void create(ProductRequest productRequest) {
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    public void create(ProductRequest productRequest) throws JsonProcessingException {
         Product product = Product.builder()
                 .name(productRequest.getName())
                 .description(productRequest.getDescription())
@@ -31,8 +37,11 @@ public class ProductService {
                 .build();
         productRepository.saveAndFlush(product);
 
+        InventoryRequest inventoryRequest =
+                new InventoryRequest(product.getId(),productRequest.getQuantity());
+
         rabbitMQMessageProducer.publish(
-                product.getId(),
+                inventoryRequest,
                 "internal.exchange",
                 "internal.notification.routing-key"
         );
