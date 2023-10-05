@@ -22,7 +22,7 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<Void> create(@RequestBody ProductRequest productRequest) throws JsonProcessingException {
         productService.create(productRequest);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(201).build();
     }
 
     @GetMapping

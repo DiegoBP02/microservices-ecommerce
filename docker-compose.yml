@@ -31,6 +31,23 @@ services:
       - "5431:5431"
     command: -p 5431
     restart: always
+
+  postgres-order:
+    image: postgres:latest
+    container_name: postgres-order
+    environment:
+      POSTGRES_DB: order-service
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres-inventory:/data/postgres
+    expose:
+      - "5433"
+    ports:
+      - "5433:5433"
+    command: -p 5433
+    restart: always
+
   rabbitmq:
     image: rabbitmq:3.9.11-management-alpine
     container_name: rabbitmq

@@ -1,6 +1,5 @@
 package com.programming.inventoryservice.controllers;
 
-import com.programming.inventoryservice.dtos.InventoryRequest;
 import com.programming.inventoryservice.dtos.InventoryUpdateRequest;
 import com.programming.inventoryservice.models.Inventory;
 import com.programming.inventoryservice.services.InventoryService;
@@ -25,6 +24,17 @@ public class InventoryController {
     @GetMapping(path = "/{id}")
     public ResponseEntity<Inventory> findById(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(inventoryService.findById(id));
+    }
+
+    @GetMapping(path = "/isInStock/{productId}")
+    public ResponseEntity<Boolean> isInStock(@PathVariable("productId") UUID productId,
+                                             @RequestParam("quantity") Integer quantity) {
+        return ResponseEntity.ok(inventoryService.isInStock(productId, quantity));
+    }
+
+    @GetMapping(path = "/stockQuantity/{productId}")
+    public ResponseEntity<Integer> stockQuantity(@PathVariable("productId") UUID productId) {
+        return ResponseEntity.ok(inventoryService.stockQuantity(productId));
     }
 
     @PatchMapping(path = "/{id}")

@@ -58,4 +58,18 @@ public class InventoryService {
         inventoryRepository.deleteById(id);
     }
 
+    private Inventory findByProductId(UUID productId){
+        return inventoryRepository.findByProductId(productId)
+                .orElseThrow(() -> new ResourceNotFoundException(productId));
+    }
+
+    public boolean isInStock(UUID productId, Integer quantity){
+        Inventory inventory = findByProductId(productId);
+
+        return inventory.getQuantity() >= quantity;
+    }
+
+    public Integer stockQuantity(UUID productId) {
+        return findByProductId(productId).getQuantity();
+    }
 }
