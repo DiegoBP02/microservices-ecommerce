@@ -1,21 +1,17 @@
 package com.programming.orderservice.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.programming.orderservice.dtos.OrderRequest;
 import com.programming.orderservice.dtos.OrderUpdateRequest;
 import com.programming.orderservice.enums.OrderStatus;
 import com.programming.orderservice.exceptions.ProductOutOfStockException;
 import com.programming.orderservice.models.Order;
+import com.programming.orderservice.models.OrderItem;
 import com.programming.orderservice.repository.OrderRepository;
 import com.programming.orderservice.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -35,35 +31,37 @@ public class OrderService {
     private WebClient.Builder webClientBuilder;
 
     public void create(OrderRequest orderRequest) {
-        boolean isInStock = checkProductInStock
-                (orderRequest.getProductId(), orderRequest.getQuantity());
-
-        if (!isInStock) {
-            Integer stockQuantity = checkStockQuantity(orderRequest.getProductId());
-            throw new ProductOutOfStockException("Product with ID " + orderRequest.getProductId()
-                    + " is out of stock. Current stock quantity: " + stockQuantity);
-        }
+        checkProductInStock(orderRequest.getOrderItemList());
 
         Order order = Order.builder()
-                .quantity(orderRequest.getQuantity())
-                .productId(orderRequest.getProductId())
+                .orderItemList(orderRequest.getOrderItemList())
                 .status(OrderStatus.PENDING)
                 .build();
 
         orderRepository.save(order);
+        log.info("A order was created.");
     }
 
-    private boolean checkProductInStock(UUID productId, int quantity) {
-        String url = UriComponentsBuilder.fromHttpUrl(INVENTORY_SERVICE_URL + "/isInStock/{productId}")
-                .queryParam("quantity", quantity)
-                .buildAndExpand(productId)
-                .toUriString();
+    private void checkProductInStock(List<OrderItem> orderItemList) {
+        for (OrderItem orderItem : orderItemList) {
+            String url = UriComponentsBuilder
+                    .fromHttpUrl(INVENTORY_SERVICE_URL + "/isInStock")
+                    .queryParam("productId", orderItem.getProductId())
+                    .queryParam("quantity", orderItem.getQuantity())
+                    .toUriString();
 
-        return Boolean.TRUE.equals(webClientBuilder.build().get()
-                .uri(url)
-                .retrieve()
-                .bodyToMono(Boolean.class)
-                .block());
+            boolean isInStock = Boolean.TRUE.equals(webClientBuilder.build().get()
+                    .uri(url)
+                    .retrieve()
+                    .bodyToMono(Boolean.class)
+                    .block());
+
+            if (!isInStock) {
+                Integer stockQuantity = checkStockQuantity(orderItem.getProductId());
+                throw new ProductOutOfStockException("Product with ID " + orderItem.getProductId()
+                        + " is out of stock. Current stock quantity: " + stockQuantity);
+            }
+        }
     }
 
     private Integer checkStockQuantity(UUID productId) {
@@ -99,7 +97,7 @@ public class OrderService {
     }
 
     private void updateData(Order order, OrderUpdateRequest orderUpdateRequest) {
-        order.setQuantity(orderUpdateRequest.getQuantity());
+//        order.setQuantity(orderUpdateRequest.getQuantity());
     }
 
     public void delete(UUID id) {

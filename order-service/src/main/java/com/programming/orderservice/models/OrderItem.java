@@ -1,29 +1,27 @@
 package com.programming.orderservice.models;
 
-import com.programming.orderservice.enums.OrderStatus;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
 import java.util.UUID;
 
-@Entity(name = "t_order")
+@Entity(name = "t_order_item")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Order {
+public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<OrderItem> orderItemList;
-
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private OrderStatus status;
+    private UUID productId;
+
+    @Column(nullable = false)
+    private int quantity;
 }

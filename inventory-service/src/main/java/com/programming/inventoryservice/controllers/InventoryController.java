@@ -26,10 +26,10 @@ public class InventoryController {
         return ResponseEntity.ok(inventoryService.findById(id));
     }
 
-    @GetMapping(path = "/isInStock/{productId}")
-    public ResponseEntity<Boolean> isInStock(@PathVariable("productId") UUID productId,
+    @GetMapping(path = "/isInStock")
+    public ResponseEntity<Boolean> isInStock(@RequestParam("productId") UUID productId, // fix queryparam vs requestparam
                                              @RequestParam("quantity") Integer quantity) {
-        return ResponseEntity.ok(inventoryService.isInStock(productId, quantity));
+        return ResponseEntity.ok(inventoryService.isInStock(productId,quantity));
     }
 
     @GetMapping(path = "/stockQuantity/{productId}")
