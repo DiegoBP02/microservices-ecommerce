@@ -1,6 +1,5 @@
-package com.programming.orderservice.models;
+package com.programming.paymentservice.models;
 
-import com.programming.orderservice.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity(name = "t_order")
@@ -16,18 +15,19 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Order {
+public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<OrderItem> orderItemList;
-
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private OrderStatus status;
+    private UUID orderId;
 
     @Column(nullable = false)
     private BigDecimal totalAmount;
+
+    @Column(nullable = false)
+    private Instant creationTime;
+
+    private Instant paymentTime;
 }

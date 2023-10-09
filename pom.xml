@@ -15,6 +15,7 @@
         <module>inventory-service</module>
         <module>rabbitmq-service</module>
         <module>eureka-server</module>
+        <module>payment-service</module>
     </modules>
 
     <properties>

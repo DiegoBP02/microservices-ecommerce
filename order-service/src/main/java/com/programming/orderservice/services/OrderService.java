@@ -2,6 +2,7 @@ package com.programming.orderservice.services;
 
 import com.programming.orderservice.dtos.OrderRequest;
 import com.programming.orderservice.dtos.OrderUpdateRequest;
+import com.programming.orderservice.dtos.ProductResponse;
 import com.programming.orderservice.enums.OrderStatus;
 import com.programming.orderservice.exceptions.ProductOutOfStockException;
 import com.programming.orderservice.models.Order;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,6 +25,7 @@ import java.util.UUID;
 public class OrderService {
 
     private final String INVENTORY_SERVICE_URL = "http://INVENTORY-SERVICE/api/v1/inventory/";
+    private final String PRODUCT_SERVICE_URL = "http://PRODUCT-SERVICE/api/v1/products/";
 
     @Autowired
     private OrderRepository orderRepository;
@@ -33,13 +36,16 @@ public class OrderService {
     public void create(OrderRequest orderRequest) {
         checkProductInStock(orderRequest.getOrderItemList());
 
+        BigDecimal orderTotalAmount = getOrderTotalAmount(orderRequest.getOrderItemList());
+
         Order order = Order.builder()
                 .orderItemList(orderRequest.getOrderItemList())
                 .status(OrderStatus.PENDING)
+                .totalAmount(orderTotalAmount)
                 .build();
 
         orderRepository.save(order);
-        log.info("A order was created.");
+        log.info("A order was created. Order id: {}.", order.getId());
     }
 
     private void checkProductInStock(List<OrderItem> orderItemList) {
@@ -74,6 +80,30 @@ public class OrderService {
                 .retrieve()
                 .bodyToMono(Integer.class)
                 .block();
+    }
+
+    private BigDecimal getOrderTotalAmount(List<OrderItem> orderItemList) {
+        BigDecimal orderTotalAmount = BigDecimal.ZERO;
+
+        for (OrderItem orderItem : orderItemList) {
+            String url = UriComponentsBuilder.fromHttpUrl(PRODUCT_SERVICE_URL + "/{productId}")
+                    .buildAndExpand(orderItem.getProductId())
+                    .toUriString();
+
+            ProductResponse productResponse = webClientBuilder.build().get()
+                    .uri(url)
+                    .retrieve()
+                    .bodyToMono(ProductResponse.class)
+                    .block();
+
+            System.out.println("price: " + productResponse.getPrice());
+            System.out.println("quantity: " + orderItem.getQuantity());
+
+            BigDecimal itemTotal = productResponse.getPrice().multiply(BigDecimal.valueOf(orderItem.getQuantity()));
+            orderTotalAmount = orderTotalAmount.add(itemTotal);
+        }
+
+        return orderTotalAmount;
     }
 
     public List<Order> findAll() {

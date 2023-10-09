@@ -40,12 +40,28 @@ services:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: password
     volumes:
-      - postgres-inventory:/data/postgres
+      - postgres-order:/data/postgres
     expose:
       - "5433"
     ports:
       - "5433:5433"
     command: -p 5433
+    restart: always
+
+  postgres-payment:
+    image: postgres:latest
+    container_name: postgres-payment
+    environment:
+      POSTGRES_DB: payment-service
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres-payment:/data/postgres
+    expose:
+      - "5434"
+    ports:
+      - "5434:5434"
+    command: -p 5434
     restart: always
 
   rabbitmq:
@@ -58,3 +74,5 @@ services:
 volumes:
   postgres-product:
   postgres-inventory:
+  postgres-order:
+  postgres-payment:
