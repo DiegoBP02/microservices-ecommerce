@@ -14,11 +14,17 @@ public class RabbitMQConfigInventory  {
     @Value("${rabbitmq.exchanges.internal}")
     private String internalExchange;
 
-    @Value("${rabbitmq.queues.notification}")
-    private String notificationQueue;
+    @Value("${rabbitmq.queues.create-inventory}")
+    private String createInventoryQueue;
 
-    @Value("${rabbitmq.routing-keys.internal-notification}")
-    private String internalNotificationRoutingKey;
+    @Value("${rabbitmq.routing-keys.create-inventory}")
+    private String createInventoryRoutingKey;
+
+    @Value("${rabbitmq.queues.update-inventory}")
+    private String updateInventoryQueue;
+
+    @Value("${rabbitmq.routing-keys.update-inventory}")
+    private String updateInventoryRoutingKey;
 
     @Bean
     public TopicExchange internalTopicExchange() {
@@ -26,27 +32,29 @@ public class RabbitMQConfigInventory  {
     }
 
     @Bean
-    public Queue notificationQueue() {
-        return new Queue(this.notificationQueue);
+    public Queue createInventoryQueue() {
+        return new Queue(this.createInventoryQueue);
     }
 
     @Bean
-    public Binding internalToNotificationBinding() {
+    public Queue updateInventoryQueue() {
+        return new Queue(this.updateInventoryQueue);
+    }
+
+    @Bean
+    public Binding createInventoryBinding() {
         return BindingBuilder
-                .bind(notificationQueue())
+                .bind(createInventoryQueue())
                 .to(internalTopicExchange())
-                .with(this.internalNotificationRoutingKey);
+                .with(this.createInventoryRoutingKey);
     }
 
-    public String getInternalExchange() {
-        return internalExchange;
+    @Bean
+    public Binding updateInventoryBinding() {
+        return BindingBuilder
+                .bind(updateInventoryQueue())
+                .to(internalTopicExchange())
+                .with(this.updateInventoryRoutingKey);
     }
 
-    public String getNotificationQueue() {
-        return notificationQueue;
-    }
-
-    public String getInternalNotificationRoutingKey() {
-        return internalNotificationRoutingKey;
-    }
 }

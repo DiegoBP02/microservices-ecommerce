@@ -42,8 +42,8 @@ public class ProductService {
 
         rabbitMQMessageProducer.publish(
                 inventoryRequest,
-                "product-quantity-exchange",
-                "product-quantity-routing-key"
+                "inventory.exchange",
+                "create.inventory.routing-key"
         );
     }
 

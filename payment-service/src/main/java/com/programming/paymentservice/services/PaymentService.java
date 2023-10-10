@@ -1,10 +1,13 @@
 package com.programming.paymentservice.services;
 
+import com.programming.paymentservice.dtos.InventoryUpdateRabbitMQ;
 import com.programming.paymentservice.dtos.OrderResponse;
+import com.programming.paymentservice.dtos.OrderUpdateRabbitMQ;
 import com.programming.paymentservice.dtos.PaymentRequest;
 import com.programming.paymentservice.exceptions.ResourceNotFoundException;
 import com.programming.paymentservice.models.Payment;
 import com.programming.paymentservice.repository.PaymentRepository;
+import com.programming.rabbitmqservice.RabbitMQMessageProducer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,17 +29,12 @@ public class PaymentService {
     @Autowired
     private WebClient.Builder webClientBuilder;
 
+    @Autowired
+    private RabbitMQMessageProducer rabbitMQMessageProducer;
+
     public void create(PaymentRequest orderRequest) {
-        String url = UriComponentsBuilder.fromHttpUrl(ORDER_SERVICE_URL + "/{orderId}")
-                .buildAndExpand(orderRequest.getOrderId())
-                .toUriString();
-
-        OrderResponse orderResponse = webClientBuilder.build().get()
-                .uri(url)
-                .retrieve()
-                .bodyToMono(OrderResponse.class)
-                .block();
-
+        OrderResponse orderResponse = getOrderResponse(orderRequest.getOrderId());
+        log.info("This is the order response {}", orderResponse);
         boolean hasSufficientBalanceForPayment =
                 canMakePayment(orderResponse.getTotalAmount(), orderRequest.getBalance());
 
@@ -45,7 +43,32 @@ public class PaymentService {
             return;
         }
 
-        log.info("Successful!!!!!!!!!!!!!!!");
+        OrderUpdateRabbitMQ orderUpdateRabbitMQ = new OrderUpdateRabbitMQ(orderRequest.getOrderId());
+        rabbitMQMessageProducer.publish(
+                orderUpdateRabbitMQ,
+                "order-complete-exchange",
+                "order-complete-routing-key"
+        );
+
+        InventoryUpdateRabbitMQ inventoryUpdateRabbitMQ
+                = new InventoryUpdateRabbitMQ(orderResponse.getOrderItemList());
+        rabbitMQMessageProducer.publish(
+                inventoryUpdateRabbitMQ,
+                "inventory.exchange",
+                "update.inventory.routing-key"
+        );
+    }
+
+    private OrderResponse getOrderResponse(UUID orderId) {
+        String url = UriComponentsBuilder.fromHttpUrl(ORDER_SERVICE_URL + "/{orderId}")
+                .buildAndExpand(orderId)
+                .toUriString();
+
+        return webClientBuilder.build().get()
+                .uri(url)
+                .retrieve()
+                .bodyToMono(OrderResponse.class)
+                .block();
     }
 
     private boolean canMakePayment(BigDecimal totalAmount, BigDecimal balance) {

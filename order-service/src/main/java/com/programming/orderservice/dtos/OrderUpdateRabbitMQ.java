@@ -1,4 +1,4 @@
-package com.programming.productservice.dtos;
+package com.programming.orderservice.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +12,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class InventoryRequest implements Serializable {
-    private UUID productId;
-    private Integer quantity;
+public class OrderUpdateRabbitMQ implements Serializable {
+    private UUID orderId;
 }

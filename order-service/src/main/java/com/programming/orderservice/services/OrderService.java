@@ -13,6 +13,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -45,7 +46,7 @@ public class OrderService {
                 .build();
 
         orderRepository.save(order);
-        log.info("A order was created. Order id: {}.", order.getId());
+        log.info("A order was created. Order id: {}", order.getId());
     }
 
     private void checkProductInStock(List<OrderItem> orderItemList) {
@@ -128,6 +129,19 @@ public class OrderService {
 
     private void updateData(Order order, OrderUpdateRequest orderUpdateRequest) {
 //        order.setQuantity(orderUpdateRequest.getQuantity());
+    }
+
+    public void updateOrderStatus(UUID id,OrderStatus orderStatus) {
+        try {
+            Order order = orderRepository.getReferenceById(id);
+            order.setStatus(orderStatus);
+
+            orderRepository.save(order);
+
+            log.info("Status of order with id {} was updated to {}", order.getId(), order.getStatus());
+        } catch (EntityNotFoundException e) {
+            throw new ResourceNotFoundException(id);
+        }
     }
 
     public void delete(UUID id) {
