@@ -34,4 +34,16 @@ public class ExceptionHandlers {
         return ResponseEntity.status(status).body(err);
     }
 
+
+    @ExceptionHandler(InsufficientBalanceException.class)
+    public ResponseEntity<StandardError> InsufficientBalanceException
+            (InsufficientBalanceException e, HttpServletRequest request) {
+        log.error("Insufficient balance exception: ", e);
+        String error = "Insufficient balance";
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        StandardError err = new StandardError(Instant.now(), status.value(), error,
+                e.getMessage(), request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+    }
+
 }

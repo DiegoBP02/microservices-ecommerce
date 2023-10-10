@@ -4,6 +4,7 @@ import com.programming.paymentservice.dtos.InventoryUpdateRabbitMQ;
 import com.programming.paymentservice.dtos.OrderResponse;
 import com.programming.paymentservice.dtos.OrderUpdateRabbitMQ;
 import com.programming.paymentservice.dtos.PaymentRequest;
+import com.programming.paymentservice.exceptions.InsufficientBalanceException;
 import com.programming.paymentservice.exceptions.ResourceNotFoundException;
 import com.programming.paymentservice.models.Payment;
 import com.programming.paymentservice.repository.PaymentRepository;
@@ -34,13 +35,12 @@ public class PaymentService {
 
     public void create(PaymentRequest orderRequest) {
         OrderResponse orderResponse = getOrderResponse(orderRequest.getOrderId());
-        log.info("This is the order response {}", orderResponse);
         boolean hasSufficientBalanceForPayment =
                 canMakePayment(orderResponse.getTotalAmount(), orderRequest.getBalance());
 
         if(!hasSufficientBalanceForPayment){
-            log.error("The user does not have enough balance to make the payment.");
-            return;
+            throw new InsufficientBalanceException
+                    ("The user does not have enough balance to make the payment.");
         }
 
         OrderUpdateRabbitMQ orderUpdateRabbitMQ = new OrderUpdateRabbitMQ(orderRequest.getOrderId());

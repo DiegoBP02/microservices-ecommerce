@@ -1,7 +1,9 @@
 package com.programming.inventoryservice.services;
 
 import com.programming.inventoryservice.dtos.InventoryRequest;
+import com.programming.inventoryservice.dtos.InventoryUpdateRabbitMQ;
 import com.programming.inventoryservice.dtos.InventoryUpdateRequest;
+import com.programming.inventoryservice.dtos.OrderItem;
 import com.programming.inventoryservice.exceptions.ResourceNotFoundException;
 import com.programming.inventoryservice.models.Inventory;
 import com.programming.inventoryservice.repositories.InventoryRepository;
@@ -9,6 +11,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -71,5 +74,15 @@ public class InventoryService {
 
     public Integer stockQuantity(UUID productId) {
         return findByProductId(productId).getQuantity();
+    }
+
+    public void updateProductsFromInventory(InventoryUpdateRabbitMQ inventoryUpdateRabbitMQ) {
+        for(OrderItem orderItem : inventoryUpdateRabbitMQ.getOrderItemList()){
+            Inventory inventory = findByProductId(orderItem.getProductId());
+            inventory.setQuantity(inventory.getQuantity() - orderItem.getQuantity());
+            inventoryRepository.save(inventory);
+            log.info("Updated inventory for Product ID {}: New Quantity: {}",
+                    inventory.getProductId(), inventory.getQuantity());
+        }
     }
 }

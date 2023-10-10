@@ -19,8 +19,8 @@ public class OrderConsumer {
 
     @Transactional
     @RabbitListener(queues = "${rabbitmq.queues.update-order}")
-    public void consumer(OrderUpdateRabbitMQ orderUpdateRabbitMQ) {
-        log.info("Consumed {} from queue", orderUpdateRabbitMQ.getOrderId());
+    public void updateOrderConsumer(OrderUpdateRabbitMQ orderUpdateRabbitMQ) {
+        log.info("UpdateOrderConsumer consumed {} from queue", orderUpdateRabbitMQ.getOrderId());
         orderService.updateOrderStatus(orderUpdateRabbitMQ.getOrderId(), OrderStatus.SUCCESSFUL);
     }
 }

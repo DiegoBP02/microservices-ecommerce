@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class RabbitMQConfigInventory  {
+public class RabbitMQConfigOrder {
 
     @Value("${rabbitmq.exchanges.internal}")
     private String internalExchange;
@@ -31,7 +31,7 @@ public class RabbitMQConfigInventory  {
     }
 
     @Bean
-    public Binding internalToNotificationBinding() {
+    public Binding updateOrderBinding() {
         return BindingBuilder
                 .bind(updateOrderQueue())
                 .to(internalTopicExchange())

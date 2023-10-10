@@ -18,12 +18,13 @@ public class InventoryConsumer {
 
     @RabbitListener(queues = "${rabbitmq.queues.create-inventory}")
     public void createInventoryConsumer(InventoryRequest inventoryRequest) {
-        log.info("Consumed {} from queue", inventoryRequest);
+        log.info("CreateInventoryConsumer consumed {} from queue", inventoryRequest);
         inventoryService.create(inventoryRequest);
     }
 
     @RabbitListener(queues = "${rabbitmq.queues.update-inventory}")
     public void updateInventoryConsumer(InventoryUpdateRabbitMQ inventoryUpdateRabbitMQ) {
-        log.info("Received message from payment service: {}", inventoryUpdateRabbitMQ);
+        log.info("UpdateInventoryConsumer consumed {} from queue", inventoryUpdateRabbitMQ);
+        inventoryService.updateProductsFromInventory(inventoryUpdateRabbitMQ);
     }
 }
