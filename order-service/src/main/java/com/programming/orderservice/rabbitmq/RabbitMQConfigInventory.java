@@ -14,11 +14,11 @@ public class RabbitMQConfigInventory  {
     @Value("${rabbitmq.exchanges.internal}")
     private String internalExchange;
 
-    @Value("${rabbitmq.queues.notification}")
-    private String notificationQueue;
+    @Value("${rabbitmq.queues.update-order}")
+    private String updateOrderQueue;
 
-    @Value("${rabbitmq.routing-keys.internal-notification}")
-    private String internalNotificationRoutingKey;
+    @Value("${rabbitmq.routing-keys.update-order}")
+    private String updateOrderRoutingKey;
 
     @Bean
     public TopicExchange internalTopicExchange() {
@@ -26,27 +26,16 @@ public class RabbitMQConfigInventory  {
     }
 
     @Bean
-    public Queue notificationQueue() {
-        return new Queue(this.notificationQueue);
+    public Queue updateOrderQueue() {
+        return new Queue(this.updateOrderQueue);
     }
 
     @Bean
     public Binding internalToNotificationBinding() {
         return BindingBuilder
-                .bind(notificationQueue())
+                .bind(updateOrderQueue())
                 .to(internalTopicExchange())
-                .with(this.internalNotificationRoutingKey);
+                .with(this.updateOrderRoutingKey);
     }
 
-    public String getInternalExchange() {
-        return internalExchange;
-    }
-
-    public String getNotificationQueue() {
-        return notificationQueue;
-    }
-
-    public String getInternalNotificationRoutingKey() {
-        return internalNotificationRoutingKey;
-    }
 }

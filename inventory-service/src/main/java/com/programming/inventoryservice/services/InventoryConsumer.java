@@ -1,8 +1,7 @@
-package com.programming.inventoryservice.rabbitmq;
+package com.programming.inventoryservice.services;
 
 import com.programming.inventoryservice.dtos.InventoryRequest;
 import com.programming.inventoryservice.dtos.InventoryUpdateRabbitMQ;
-import com.programming.inventoryservice.services.InventoryService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -12,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 @AllArgsConstructor
 @Slf4j
-public class RabbitMQJsonConsumer {
+public class InventoryConsumer {
 
     @Autowired
     private InventoryService inventoryService;

@@ -46,8 +46,8 @@ public class PaymentService {
         OrderUpdateRabbitMQ orderUpdateRabbitMQ = new OrderUpdateRabbitMQ(orderRequest.getOrderId());
         rabbitMQMessageProducer.publish(
                 orderUpdateRabbitMQ,
-                "order-complete-exchange",
-                "order-complete-routing-key"
+                "order.exchange",
+                "update.order.routing-key"
         );
 
         InventoryUpdateRabbitMQ inventoryUpdateRabbitMQ
